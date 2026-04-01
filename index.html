@@ -551,7 +551,7 @@
     setDefaultDate("bai-fecha");
     setDefaultDate("bdi-fecha");
 
-    function renderItems(containerId, items, defaultOptions) {
+    function renderItems(containerId, items, defaultOptions, namePrefix) {
       const container = document.getElementById(containerId);
       items.forEach((item, idx) => {
         const wrapper = document.createElement("div");
@@ -572,7 +572,7 @@
 
           const input = document.createElement("input");
           input.type = "radio";
-          input.name = `${containerId}-q${idx}`;
+          input.name = `${namePrefix}-q${idx}`;
           input.value = opt.score;
           input.setAttribute("data-label", opt.label);
 
@@ -589,8 +589,8 @@
       });
     }
 
-    renderItems("bai-items", BAI_ITEMS, BAI_OPTIONS);
-    renderItems("bdi-items", BDI_ITEMS, null);
+    renderItems("bai-items", BAI_ITEMS, BAI_OPTIONS, "bai");
+    renderItems("bdi-items", BDI_ITEMS, null, "bdi");
 
     function handleSubmit(formId, items, defaultOptions, resultId, errorId, testName, interpretFn, prefix) {
       const formEl = document.getElementById(formId);
