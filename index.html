@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pruebas Psicológicas</title>
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --accent-2: #134e4a;
+      --border: #e5e7eb;
+      --warn: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 600px at 20% 0%, #efe9df 0%, var(--bg) 55%, #f3f1ec 100%);
+    }
+
+    header {
+      padding: 32px 20px 10px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      letter-spacing: 0.3px;
+    }
+
+    header p {
+      margin: 0 auto;
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 15px;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto 56px;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 18px 8px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .menu {
+      display: grid;
+      gap: 14px;
+    }
+
+    .menu button {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--ink);
+      padding: 16px 18px;
+      border-radius: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      font-size: 16px;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .menu button:hover {
+      border-color: #c7cbd1;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input[type="text"], input[type="date"] {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: "Arial", sans-serif;
+      background: #fff;
+    }
+
+    .item {
+      border-top: 1px dashed #ddd9d0;
+      padding: 14px 4px 12px;
+    }
+
+    .item:first-child {
+      border-top: none;
+      padding-top: 4px;
+    }
+
+    .item-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: 0.2px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fafafa;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      font-family: "Arial", sans-serif;
+      font-size: 14px;
+    }
+
+    .option input { accent-color: var(--accent); }
+
+    .option:hover {
+      border-color: #c7cbd1;
+      background: #f3f4f6;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    button.primary {
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      transition: background 0.2s ease;
+    }
+
+    button.primary:hover { background: var(--accent-2); }
+
+    button.secondary {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      font-family: "Arial", sans-serif;
+      display: none;
+    }
+
+    .error {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      font-family: "Arial", sans-serif;
+      display: none;
+    }
+
+    .hidden { display: none; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pruebas Psicológicas</h1>
+    <p>Selecciona una prueba para iniciar. Al finalizar, se descargará automáticamente un archivo XLSX con las respuestas y una interpretación breve.</p>
+  </header>
+
+  <main>
+    <section id="menu" class="card menu">
+      <button type="button" data-target="bai">Inventario de Ansiedad de Beck (BAI)</button>
+      <button type="button" data-target="bdi">Inventario de Depresión de Beck (BDI-II)</button>
+    </section>
+
+    <section id="bai" class="card hidden">
+      <h2>Inventario de Ansiedad de Beck (BAI)</h2>
+      <p>En el cuestionario hay una lista de síntomas comunes de la ansiedad. Lea cada uno de los ítems atentamente, e indique cuanto le ha afectado en la última semana incluyendo hoy:</p>
+      <form id="form-bai">
+        <div class="meta">
+          <div class="field">
+            <label for="bai-nombre">Nombre del consultante (opcional)</label>
+            <input id="bai-nombre" name="nombre" type="text" placeholder="Nombre y apellidos" />
+          </div>
+          <div class="field">
+            <label for="bai-fecha">Fecha</label>
+            <input id="bai-fecha" name="fecha" type="date" />
+          </div>
+        </div>
+        <div id="bai-items"></div>
+        <div class="actions">
+          <button type="submit" class="primary">Finalizar y descargar XLSX</button>
+          <button type="button" class="secondary" data-back>Volver al menú</button>
+        </div>
+        <div id="bai-result" class="result"></div>
+        <div id="bai-error" class="error"></div>
+      </form>
+    </section>
+
+    <section id="bdi" class="card hidden">
+      <h2>Inventario de Depresión de Beck (BDI-II)</h2>
+      <p>Este cuestionario consta de 21 grupos de afirmaciones. Lea con atención cada uno de ellos y elija una opción por grupo que describa cómo se ha sentido en las últimas dos semanas, incluyendo el día de hoy.</p>
+      <form id="form-bdi">
+        <div class="meta">
+          <div class="field">
+            <label for="bdi-nombre">Nombre del consultante (opcional)</label>
+            <input id="bdi-nombre" name="nombre" type="text" placeholder="Nombre y apellidos" />
+          </div>
+          <div class="field">
+            <label for="bdi-fecha">Fecha</label>
+            <input id="bdi-fecha" name="fecha" type="date" />
+          </div>
+        </div>
+        <div id="bdi-items"></div>
+        <div class="actions">
+          <button type="submit" class="primary">Finalizar y descargar XLSX</button>
+          <button type="button" class="secondary" data-back>Volver al menú</button>
+        </div>
+        <div id="bdi-result" class="result"></div>
+        <div id="bdi-error" class="error"></div>
+      </form>
+    </section>
+
+    <footer>
+      Archivo generado localmente (sin dependencias externas).
+    </footer>
+  </main>
+
+  <script>
+    const BAI_OPTIONS = [
+      { label: "En absoluto", score: 0 },
+      { label: "Levemente", score: 1 },
+      { label: "Moderadamente", score: 2 },
+      { label: "Severamente", score: 3 }
+    ];
+
+    const BAI_ITEMS = [
+      "Torpe o entumecido.",
+      "Acalorado.",
+      "Con temblor en las piernas.",
+      "Incapaz de relajarse.",
+      "Con temor a que ocurra lo peor.",
+      "Mareado, o que se le va la cabeza.",
+      "Con latidos del corazón fuertes y acelerados.",
+      "Inestable.",
+      "Atemorizado o asustado.",
+      "Nervioso.",
+      "Con sensación de bloqueo.",
+      "Inquieto, inseguro.",
+      "Con temblores en las manos.",
+      "Con miedo a perder el control.",
+      "Con sensación de ahogo.",
+      "Con temor a morir.",
+      "Con miedo.",
+      "Con desvanecimientos.",
+      "Con problemas digestivos.",
+      "Con rubor facial.",
+      "Con sudores, frios o calientes."
+    ];
+
+    const BDI_ITEMS = [
+      {
+        title: "Tristeza",
+        options: [
+          { label: "No me siento triste.", score: 0 },
+          { label: "Me siento triste gran parte del tiempo.", score: 1 },
+          { label: "Me siento triste todo el tiempo.", score: 2 },
+          { label: "Me siento tan triste o soy tan infeliz que no puedo soportarlo.", score: 3 }
+        ]
+      },
+      {
+        title: "Pesimismo",
+        options: [
+          { label: "No estoy desalentado respecto de mi futuro.", score: 0 },
+          { label: "Me siento más desalentado respecto de mi futuro que lo que solía estarlo.", score: 1 },
+          { label: "No espero que las cosas funcionen para mi.", score: 2 },
+          { label: "Siento que no hay esperanza para mi futuro y que sólo puede empeorar.", score: 3 }
+        ]
+      },
+      {
+        title: "Fracaso",
+        options: [
+          { label: "No me siento como un fracasado.", score: 0 },
+          { label: "He fracasado más de lo que hubiera debido.", score: 1 },
+          { label: "Cuando miro hacia atrás, veo muchos fracasos.", score: 2 },
+          { label: "Siento que como persona soy un fracaso total.", score: 3 }
+        ]
+      },
+      {
+        title: "Pérdida de Placer",
+        options: [
+          { label: "Obtengo tanto placer como siempre por las cosas de las que disfruto.", score: 0 },
+          { label: "No disfruto tanto de las cosas como solía hacerlo.", score: 1 },
+          { label: "Obtengo muy poco placer de las cosas que solía disfrutar.", score: 2 },
+          { label: "No puedo obtener ningún placer de las cosas de las que solía disfrutar.", score: 3 }
+        ]
+      },
+      {
+        title: "Sentimientos de Culpa",
+        options: [
+          { label: "No me siento particularmente culpable.", score: 0 },
+          { label: "Me siento culpable respecto de varias cosas que he hecho o que debería haber hecho.", score: 1 },
+          { label: "Me siento bastante culpable la mayor parte del tiempo.", score: 2 },
+          { label: "Me siento culpable todo el tiempo.", score: 3 }
+        ]
+      },
+      {
+        title: "Sentimientos de Castigo",
+        options: [
+          { label: "No siento que este siendo castigado.", score: 0 },
+          { label: "Siento que tal vez pueda ser castigado.", score: 1 },
+          { label: "Espero ser castigado.", score: 2 },
+          { label: "Siento que estoy siendo castigado.", score: 3 }
+        ]
+      },
+      {
+        title: "Disconformidad con uno mismo",
+        options: [
+          { label: "Siento acerca de mi lo mismo que siempre.", score: 0 },
+          { label: "He perdido la confianza en mí mismo.", score: 1 },
+          { label: "Estoy decepcionado conmigo mismo.", score: 2 },
+          { label: "No me gusto a mí mismo.", score: 3 }
+        ]
+      },
+      {
+        title: "Autocrítica",
+        options: [
+          { label: "No me critico ni me culpo más de lo habitual.", score: 0 },
+          { label: "Estoy más crítico conmigo mismo de lo que solía estarlo.", score: 1 },
+          { label: "Me critico a mí mismo por todos mis errores.", score: 2 },
+          { label: "Me culpo a mí mismo por todo lo malo que sucede.", score: 3 }
+        ]
+      },
+      {
+        title: "Pensamientos o Deseos Suicidas",
+        options: [
+          { label: "No tengo ningún pensamiento de matarme.", score: 0 },
+          { label: "He tenido pensamientos de matarme, pero no lo haría.", score: 1 },
+          { label: "Querría matarme.", score: 2 },
+          { label: "Me mataría si tuviera la oportunidad de hacerlo.", score: 3 }
+        ]
+      },
+      {
+        title: "Llanto",
+        options: [
+          { label: "No lloro más de lo que solía hacerlo.", score: 0 },
+          { label: "Lloro más de lo que solía hacerlo.", score: 1 },
+          { label: "Lloro por cualquier pequeñez.", score: 2 },
+          { label: "Siento ganas de llorar pero no puedo.", score: 3 }
+        ]
+      },
+      {
+        title: "Agitación",
+        options: [
+          { label: "No estoy más inquieto o tenso que lo habitual.", score: 0 },
+          { label: "Me siento más inquieto o tenso que lo habitual.", score: 1 },
+          { label: "Estoy tan inquieto o agitado que me es difícil quedarme quieto.", score: 2 },
+          { label: "Estoy tan inquieto o agitado que tengo que estar siempre en movimiento o haciendo algo.", score: 3 }
+        ]
+      },
+      {
+        title: "Pérdida de Interés",
+        options: [
+          { label: "No he perdido el interés en otras actividades o personas.", score: 0 },
+          { label: "Estoy menos interesado que antes en otras personas o cosas.", score: 1 },
+          { label: "He perdido casi todo el interés en otras personas o cosas.", score: 2 },
+          { label: "Me es difícil interesarme por algo.", score: 3 }
+        ]
+      },
+      {
+        title: "Indecisión",
+        options: [
+          { label: "Tomo mis propias decisiones tan bien como siempre.", score: 0 },
+          { label: "Me resulta más difícil que de costumbre tomar decisiones.", score: 1 },
+          { label: "Encuentro mucha más dificultad que antes para tomar decisiones.", score: 2 },
+          { label: "Tengo problemas para tomar cualquier decisión.", score: 3 }
+        ]
+      },
+      {
+        title: "Desvalorización",
+        options: [
+          { label: "No siento que yo no sea valioso.", score: 0 },
+          { label: "No me considero a mi mismo tan valioso y útil como solía considerarme.", score: 1 },
+          { label: "Me siento menos valioso cuando me comparo con otros.", score: 2 },
+          { label: "Siento que no valgo nada.", score: 3 }
+        ]
+      },
+      {
+        title: "Pérdida de Energía",
+        options: [
+          { label: "Tengo tanta energía como siempre.", score: 0 },
+          { label: "Tengo menos energía que la que solía tener.", score: 1 },
+          { label: "No tengo suficiente energía para hacer demasiado.", score: 2 },
+          { label: "No tengo energía suficiente para hacer nada.", score: 3 }
+        ]
+      },
+      {
+        title: "Cambios en los Hábitos de Sueño",
+        options: [
+          { label: "No he experimentado ningún cambio en mis hábitos de sueño.", score: 0 },
+          { label: "Duermo un poco más que lo habitual.", score: 1 },
+          { label: "Duermo un poco menos que lo habitual.", score: 1 },
+          { label: "Duermo mucho más que lo habitual.", score: 2 },
+          { label: "Duermo mucho menos que lo habitual.", score: 2 },
+          { label: "Duermo la mayor parte del día.", score: 3 },
+          { label: "Me despierto 1-2 horas más temprano y no puedo volver a dormirme.", score: 3 }
+        ]
+      },
+      {
+        title: "Irritabilidad",
+        options: [
+          { label: "No estoy tan irritable que lo habitual.", score: 0 },
+          { label: "Estoy más irritable que lo habitual.", score: 1 },
+          { label: "Estoy mucho más irritable que lo habitual.", score: 2 },
+          { label: "Estoy irritable todo el tiempo.", score: 3 }
+        ]
+      },
+      {
+        title: "Cambios en el Apetito",
+        options: [
+          { label: "No he experimentado ningún cambio en mi apetito.", score: 0 },
+          { label: "Mi apetito es un poco menor que lo habitual.", score: 1 },
+          { label: "Mi apetito es un poco mayor que lo habitual.", score: 1 },
+          { label: "Mi apetito es mucho menor que antes.", score: 2 },
+          { label: "Mi apetito es mucho mayor que lo habitual.", score: 2 },
+          { label: "No tengo apetito en absoluto.", score: 3 },
+          { label: "Quiero comer todo el día.", score: 3 }
+        ]
+      },
+      {
+        title: "Dificultad de Concentración",
+        options: [
+          { label: "Puedo concentrarme tan bien como siempre.", score: 0 },
+          { label: "No puedo concentrarme tan bien como habitualmente.", score: 1 },
+          { label: "Me es difícil mantener la mente en algo por mucho tiempo.", score: 2 },
+          { label: "Encuentro que no puedo concentrarme en nada.", score: 3 }
+        ]
+      },
+      {
+        title: "Cansancio o Fatiga",
+        options: [
+          { label: "No estoy más cansado o fatigado que lo habitual.", score: 0 },
+          { label: "Me fatigo o me canso más fácilmente que lo habitual.", score: 1 },
+          { label: "Estoy demasiado fatigado o cansado para hacer muchas de las cosas que solía hacer.", score: 2 },
+          { label: "Estoy demasiado fatigado o cansado para hacer la mayoría de las cosas que solía hacer.", score: 3 }
+        ]
+      },
+      {
+        title: "Pérdida de Interés en el Sexo",
+        options: [
+          { label: "No he notado ningún cambio reciente en mi interés por el sexo.", score: 0 },
+          { label: "Estoy menos interesado en el sexo de lo que solía estarlo.", score: 1 },
+          { label: "Estoy mucho menos interesado en el sexo.", score: 2 },
+          { label: "He perdido completamente el interés en el sexo.", score: 3 }
+        ]
+      }
+    ];
+
+    const menuSection = document.getElementById("menu");
+    const sections = {
+      bai: document.getElementById("bai"),
+      bdi: document.getElementById("bdi")
+    };
+
+    document.querySelectorAll("#menu button[data-target]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-target");
+        showSection(target);
+      });
+    });
+
+    document.querySelectorAll("[data-back]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        showSection("menu");
+      });
+    });
+
+    function showSection(name) {
+      if (name === "menu") {
+        menuSection.classList.remove("hidden");
+        sections.bai.classList.add("hidden");
+        sections.bdi.classList.add("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      menuSection.classList.add("hidden");
+      sections[name].classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setDefaultDate(inputId) {
+      const el = document.getElementById(inputId);
+      const today = new Date();
+      el.value = today.toISOString().slice(0, 10);
+    }
+
+    setDefaultDate("bai-fecha");
+    setDefaultDate("bdi-fecha");
+
+    function renderItems(containerId, items, defaultOptions) {
+      const container = document.getElementById(containerId);
+      items.forEach((item, idx) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "item";
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = `${idx + 1}. ${item.title || item}`;
+        wrapper.appendChild(title);
+
+        const options = document.createElement("div");
+        options.className = "options";
+
+        const optList = item.options || defaultOptions;
+        optList.forEach(opt => {
+          const label = document.createElement("label");
+          label.className = "option";
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `${containerId}-q${idx}`;
+          input.value = opt.score;
+          input.setAttribute("data-label", opt.label);
+
+          const span = document.createElement("span");
+          span.textContent = opt.label;
+
+          label.appendChild(input);
+          label.appendChild(span);
+          options.appendChild(label);
+        });
+
+        wrapper.appendChild(options);
+        container.appendChild(wrapper);
+      });
+    }
+
+    renderItems("bai-items", BAI_ITEMS, BAI_OPTIONS);
+    renderItems("bdi-items", BDI_ITEMS, null);
+
+    function handleSubmit(formId, items, defaultOptions, resultId, errorId, testName, interpretFn, prefix) {
+      const formEl = document.getElementById(formId);
+      const resultEl = document.getElementById(resultId);
+      const errorEl = document.getElementById(errorId);
+
+      formEl.addEventListener("submit", (event) => {
+        event.preventDefault();
+        errorEl.style.display = "none";
+        resultEl.style.display = "none";
+
+        const responses = [];
+        let total = 0;
+
+        for (let i = 0; i < items.length; i++) {
+          const chosen = document.querySelector(`input[name=\"${prefix}-q${i}\"]:checked`);
+          if (!chosen) {
+            errorEl.textContent = "Faltan respuestas. Por favor complete todos los ítems antes de finalizar.";
+            errorEl.style.display = "block";
+            return;
+          }
+          const score = Number(chosen.value);
+          const label = chosen.getAttribute("data-label");
+          const itemTitle = items[i].title || items[i];
+          responses.push({ item: itemTitle, response: label, score });
+          total += score;
+        }
+
+        const interpretation = interpretFn(total);
+        resultEl.textContent = `Puntaje total: ${total}. Interpretación: ${interpretation}.`;
+        resultEl.style.display = "block";
+
+        const nombre = document.getElementById(`${prefix}-nombre`).value.trim();
+        const fecha = document.getElementById(`${prefix}-fecha`).value;
+
+        const rows = [];
+        rows.push(["Prueba", testName]);
+        rows.push(["Fecha", fecha || ""]);
+        rows.push(["Consultante", nombre || ""]);
+        rows.push(["Puntaje total", total]);
+        rows.push(["Interpretación", interpretation]);
+        rows.push([]);
+        rows.push(["Ítem", "Respuesta", "Puntaje"]);
+        responses.forEach((r) => {
+          rows.push([r.item, r.response, r.score]);
+        });
+
+        const xlsx = buildXlsx(rows);
+        const blob = new Blob([xlsx], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const safeName = (nombre || "consultante").replace(/[^a-z0-9_-]+/gi, "_").toLowerCase();
+        a.href = url;
+        a.download = `${testName.replace(/[^a-z0-9_-]+/gi, "_")}_${safeName}_${fecha || ""}.xlsx`.replace(/_+$/, "");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    handleSubmit(
+      "form-bai",
+      BAI_ITEMS,
+      BAI_OPTIONS,
+      "bai-result",
+      "bai-error",
+      "BAI",
+      (total) => {
+        if (total <= 21) return "Ansiedad muy baja";
+        if (total <= 35) return "Ansiedad moderada";
+        return "Ansiedad severa";
+      },
+      "bai"
+    );
+
+    handleSubmit(
+      "form-bdi",
+      BDI_ITEMS,
+      null,
+      "bdi-result",
+      "bdi-error",
+      "BDI-II",
+      (total) => {
+        if (total <= 13) return "Depresión mínima";
+        if (total <= 19) return "Depresión leve";
+        if (total <= 28) return "Depresión moderada";
+        return "Depresión grave";
+      },
+      "bdi"
+    );
+
+    function buildXlsx(rows) {
+      const shared = [];
+      const sharedIndex = new Map();
+
+      function getSharedIndex(text) {
+        if (!sharedIndex.has(text)) {
+          sharedIndex.set(text, shared.length);
+          shared.push(text);
+        }
+        return sharedIndex.get(text);
+      }
+
+      const sheetRows = rows.map((row, rIdx) => {
+        const cells = row.map((value, cIdx) => {
+          const cellRef = `${columnName(cIdx + 1)}${rIdx + 1}`;
+          if (typeof value === "number") {
+            return `<c r=\"${cellRef}\" t=\"n\"><v>${value}</v></c>`;
+          }
+          const v = value == null ? "" : String(value);
+          const sIdx = getSharedIndex(v);
+          return `<c r=\"${cellRef}\" t=\"s\"><v>${sIdx}</v></c>`;
+        });
+        return `<row r=\"${rIdx + 1}\">${cells.join("")}</row>`;
+      }).join("");
+
+      const sheetXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">
+  <sheetData>${sheetRows}</sheetData>
+</worksheet>`;
+
+      const sharedXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"${shared.length}\" uniqueCount=\"${shared.length}\">
+  ${shared.map(s => `<si><t>${escapeXml(s)}</t></si>`).join("")}
+</sst>`;
+
+      const workbookXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">
+  <sheets>
+    <sheet name=\"Resultados\" sheetId=\"1\" r:id=\"rId1\"/>
+  </sheets>
+</workbook>`;
+
+      const stylesXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">
+  <fonts count=\"1\"><font><sz val=\"11\"/><name val=\"Calibri\"/></font></fonts>
+  <fills count=\"1\"><fill><patternFill patternType=\"none\"/></fill></fills>
+  <borders count=\"1\"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+  <cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs>
+  <cellXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/></cellXfs>
+</styleSheet>`;
+
+      const relsXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">
+  <Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/>
+</Relationships>`;
+
+      const wbRelsXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">
+  <Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/>
+  <Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>
+  <Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\" Target=\"sharedStrings.xml\"/>
+</Relationships>`;
+
+      const contentTypesXml = `<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>
+<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">
+  <Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>
+  <Default Extension=\"xml\" ContentType=\"application/xml\"/>
+  <Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>
+  <Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>
+  <Override PartName=\"/xl/sharedStrings.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\"/>
+  <Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>
+</Types>`;
+
+      const files = [
+        { name: "[Content_Types].xml", data: contentTypesXml },
+        { name: "_rels/.rels", data: relsXml },
+        { name: "xl/workbook.xml", data: workbookXml },
+        { name: "xl/_rels/workbook.xml.rels", data: wbRelsXml },
+        { name: "xl/worksheets/sheet1.xml", data: sheetXml },
+        { name: "xl/sharedStrings.xml", data: sharedXml },
+        { name: "xl/styles.xml", data: stylesXml }
+      ];
+
+      return zipStore(files);
+    }
+
+    function escapeXml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+    }
+
+    function columnName(n) {
+      let name = "";
+      while (n > 0) {
+        const rem = (n - 1) % 26;
+        name = String.fromCharCode(65 + rem) + name;
+        n = Math.floor((n - 1) / 26);
+      }
+      return name;
+    }
+
+    function zipStore(files) {
+      const encoder = new TextEncoder();
+      const localParts = [];
+      const centralParts = [];
+      let offset = 0;
+
+      files.forEach(file => {
+        const nameBytes = encoder.encode(file.name);
+        const dataBytes = encoder.encode(file.data);
+        const crc = crc32(dataBytes);
+        const localHeader = buildLocalHeader(nameBytes, dataBytes.length, crc);
+        const centralHeader = buildCentralHeader(nameBytes, dataBytes.length, crc, offset);
+
+        localParts.push(localHeader, nameBytes, dataBytes);
+        centralParts.push(centralHeader, nameBytes);
+
+        offset += localHeader.length + nameBytes.length + dataBytes.length;
+      });
+
+      const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+      const centralOffset = offset;
+      const endRecord = buildEndRecord(files.length, centralSize, centralOffset);
+
+      return concatArrays([...localParts, ...centralParts, endRecord]);
+    }
+
+    function buildLocalHeader(nameBytes, dataSize, crc) {
+      const header = new Uint8Array(30);
+      const view = new DataView(header.buffer);
+      view.setUint32(0, 0x04034b50, true);
+      view.setUint16(4, 20, true);
+      view.setUint16(6, 0, true);
+      view.setUint16(8, 0, true);
+      view.setUint16(10, 0, true);
+      view.setUint16(12, 0, true);
+      view.setUint32(14, crc, true);
+      view.setUint32(18, dataSize, true);
+      view.setUint32(22, dataSize, true);
+      view.setUint16(26, nameBytes.length, true);
+      view.setUint16(28, 0, true);
+      return header;
+    }
+
+    function buildCentralHeader(nameBytes, dataSize, crc, offset) {
+      const header = new Uint8Array(46);
+      const view = new DataView(header.buffer);
+      view.setUint32(0, 0x02014b50, true);
+      view.setUint16(4, 20, true);
+      view.setUint16(6, 20, true);
+      view.setUint16(8, 0, true);
+      view.setUint16(10, 0, true);
+      view.setUint16(12, 0, true);
+      view.setUint16(14, 0, true);
+      view.setUint32(16, crc, true);
+      view.setUint32(20, dataSize, true);
+      view.setUint32(24, dataSize, true);
+      view.setUint16(28, nameBytes.length, true);
+      view.setUint16(30, 0, true);
+      view.setUint16(32, 0, true);
+      view.setUint16(34, 0, true);
+      view.setUint16(36, 0, true);
+      view.setUint32(38, 0, true);
+      view.setUint32(42, offset, true);
+      return header;
+    }
+
+    function buildEndRecord(count, centralSize, centralOffset) {
+      const header = new Uint8Array(22);
+      const view = new DataView(header.buffer);
+      view.setUint32(0, 0x06054b50, true);
+      view.setUint16(4, 0, true);
+      view.setUint16(6, 0, true);
+      view.setUint16(8, count, true);
+      view.setUint16(10, count, true);
+      view.setUint32(12, centralSize, true);
+      view.setUint32(16, centralOffset, true);
+      view.setUint16(20, 0, true);
+      return header;
+    }
+
+    function concatArrays(arrays) {
+      const total = arrays.reduce((sum, arr) => sum + arr.length, 0);
+      const out = new Uint8Array(total);
+      let offset = 0;
+      arrays.forEach(arr => {
+        out.set(arr, offset);
+        offset += arr.length;
+      });
+      return out;
+    }
+
+    function crc32(buf) {
+      let crc = 0 ^ -1;
+      for (let i = 0; i < buf.length; i++) {
+        crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ buf[i]) & 0xff];
+      }
+      return (crc ^ -1) >>> 0;
+    }
+
+    const CRC_TABLE = (() => {
+      const table = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let k = 0; k < 8; k++) {
+          c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        table[i] = c >>> 0;
+      }
+      return table;
+    })();
+  </script>
+</body>
+</html>
