@@ -193,6 +193,31 @@
       gap: 8px;
     }
 
+    .bsps-item {
+      border-top: 1px dashed #ddd9d0;
+      padding: 14px 4px 12px;
+    }
+
+    .bsps-item:first-child {
+      border-top: none;
+      padding-top: 4px;
+    }
+
+    .bsps-scales {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .bsps-scale-title {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
+    }
+
     .option {
       display: flex;
       align-items: center;
@@ -303,6 +328,10 @@
           <span class="menu-title">Test de Creencias Irracionales de Ellis</span>
           <span class="menu-sub">Creencias auto-limitadoras, 100 ítems.</span>
         </button>
+        <button type="button" data-target="bsps">
+          <span class="menu-title">Escala Breve de Fobia Social (BSPS)</span>
+          <span class="menu-sub">Miedo, evitación y síntomas fisiológicos.</span>
+        </button>
       </div>
     </section>
 
@@ -375,6 +404,36 @@
         </div>
         <div id="ellis-result" class="result"></div>
         <div id="ellis-error" class="error"></div>
+      </form>
+    </section>
+
+    <section id="bsps" class="card hidden">
+      <h2>Escala Breve de Fobia Social (BSPS)</h2>
+      <p>Parte I (miedo/evitación): indique cuánto temor experimenta y cuánto evita cada situación. Parte II (fisiología): indique la intensidad de los síntomas.</p>
+      <form id="form-bsps">
+        <div class="meta">
+          <div class="field">
+            <label for="bsps-nombre">Nombre del consultante (opcional)</label>
+            <input id="bsps-nombre" name="nombre" type="text" placeholder="Nombre y apellidos" />
+          </div>
+          <div class="field">
+            <label for="bsps-fecha">Fecha</label>
+            <input id="bsps-fecha" name="fecha" type="date" />
+          </div>
+        </div>
+
+        <h3>Parte I: Miedo y Evitación</h3>
+        <div id="bsps-part1"></div>
+
+        <h3>Parte II: Fisiología</h3>
+        <div id="bsps-part2"></div>
+
+        <div class="actions">
+          <button type="submit" class="primary">Finalizar y descargar XLSX</button>
+          <button type="button" class="secondary" data-back>Volver al menú</button>
+        </div>
+        <div id="bsps-result" class="result"></div>
+        <div id="bsps-error" class="error"></div>
       </form>
     </section>
 
@@ -734,11 +793,53 @@
       { id: 10, statement: "La felicidad aumenta con la inactividad, la pasividad y el ocio indefinido" }
     ];
 
+    const BSPS_PART1_ITEMS = [
+      "Hablar en público o delante de otros",
+      "Hablar con gente con autoridad",
+      "Hablar con extraños",
+      "Estar en una situación embarazosa o humillante",
+      "Ser criticado",
+      "Reuniones sociales",
+      "Hacer algo mientras es observado (esto no incluye hablar)"
+    ];
+
+    const BSPS_PART2_ITEMS = [
+      "Enrojecimiento",
+      "Palpitaciones",
+      "Temblores o sacudidas",
+      "Sudoración"
+    ];
+
+    const BSPS_FEAR_OPTIONS = [
+      { label: "0. Nada", score: 0 },
+      { label: "1. Leve (infrecuente y/o no estresante)", score: 1 },
+      { label: "2. Moderado (frecuente y/o algún malestar)", score: 2 },
+      { label: "3. Grave (constante, domina la vida y/o claramente estresante)", score: 3 },
+      { label: "4. Extremo (incapacitante y/o extremadamente estresante)", score: 4 }
+    ];
+
+    const BSPS_AVOID_OPTIONS = [
+      { label: "0. Nunca (0%)", score: 0 },
+      { label: "1. Rara vez (1-33%)", score: 1 },
+      { label: "2. A veces (34-66%)", score: 2 },
+      { label: "3. Frecuentemente (67-99%)", score: 3 },
+      { label: "4. Siempre (100%)", score: 4 }
+    ];
+
+    const BSPS_PHYS_OPTIONS = [
+      { label: "0. Nada", score: 0 },
+      { label: "1. Leve (infrecuente y/o no estresante)", score: 1 },
+      { label: "2. Moderado (frecuente y/o algún malestar)", score: 2 },
+      { label: "3. Grave (constante, domina la vida y/o claramente estresante)", score: 3 },
+      { label: "4. Extremo (incapacitante y/o dolorosamente estresante)", score: 4 }
+    ];
+
     const menuSection = document.getElementById("menu");
     const sections = {
       bai: document.getElementById("bai"),
       bdi: document.getElementById("bdi"),
-      ellis: document.getElementById("ellis")
+      ellis: document.getElementById("ellis"),
+      bsps: document.getElementById("bsps")
     };
 
     document.querySelectorAll("#menu button[data-target]").forEach(btn => {
@@ -760,6 +861,7 @@
         sections.bai.classList.add("hidden");
         sections.bdi.classList.add("hidden");
         sections.ellis.classList.add("hidden");
+        sections.bsps.classList.add("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
@@ -777,6 +879,7 @@
     setDefaultDate("bai-fecha");
     setDefaultDate("bdi-fecha");
     setDefaultDate("ellis-fecha");
+    setDefaultDate("bsps-fecha");
 
     function renderItems(containerId, items, defaultOptions, namePrefix) {
       const container = document.getElementById(containerId);
@@ -819,6 +922,113 @@
     renderItems("bai-items", BAI_ITEMS, BAI_OPTIONS, "bai");
     renderItems("bdi-items", BDI_ITEMS, null, "bdi");
     renderItems("ellis-items", ELLIS_ITEMS, ELLIS_OPTIONS, "ellis");
+
+    function renderBspsPart1(containerId) {
+      const container = document.getElementById(containerId);
+      BSPS_PART1_ITEMS.forEach((item, idx) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "bsps-item";
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = `${idx + 1}. ${item}`;
+        wrapper.appendChild(title);
+
+        const scales = document.createElement("div");
+        scales.className = "bsps-scales";
+
+        const fearBlock = document.createElement("div");
+        const fearTitle = document.createElement("div");
+        fearTitle.className = "bsps-scale-title";
+        fearTitle.textContent = "Miedo";
+        fearBlock.appendChild(fearTitle);
+        const fearOptions = document.createElement("div");
+        fearOptions.className = "options";
+        BSPS_FEAR_OPTIONS.forEach(opt => {
+          const label = document.createElement("label");
+          label.className = "option";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `bsps-m${idx}`;
+          input.value = opt.score;
+          input.setAttribute("data-label", opt.label);
+          const span = document.createElement("span");
+          span.textContent = opt.label;
+          label.appendChild(input);
+          label.appendChild(span);
+          fearOptions.appendChild(label);
+        });
+        fearBlock.appendChild(fearOptions);
+
+        const avoidBlock = document.createElement("div");
+        const avoidTitle = document.createElement("div");
+        avoidTitle.className = "bsps-scale-title";
+        avoidTitle.textContent = "Evitación";
+        avoidBlock.appendChild(avoidTitle);
+        const avoidOptions = document.createElement("div");
+        avoidOptions.className = "options";
+        BSPS_AVOID_OPTIONS.forEach(opt => {
+          const label = document.createElement("label");
+          label.className = "option";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `bsps-e${idx}`;
+          input.value = opt.score;
+          input.setAttribute("data-label", opt.label);
+          const span = document.createElement("span");
+          span.textContent = opt.label;
+          label.appendChild(input);
+          label.appendChild(span);
+          avoidOptions.appendChild(label);
+        });
+        avoidBlock.appendChild(avoidOptions);
+
+        scales.appendChild(fearBlock);
+        scales.appendChild(avoidBlock);
+        wrapper.appendChild(scales);
+        container.appendChild(wrapper);
+      });
+    }
+
+    function renderBspsPart2(containerId) {
+      const container = document.getElementById(containerId);
+      BSPS_PART2_ITEMS.forEach((item, idx) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "bsps-item";
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = `${idx + 1}. ${item}`;
+        wrapper.appendChild(title);
+
+        const scaleTitle = document.createElement("div");
+        scaleTitle.className = "bsps-scale-title";
+        scaleTitle.textContent = "Fisiológica";
+        wrapper.appendChild(scaleTitle);
+
+        const options = document.createElement("div");
+        options.className = "options";
+        BSPS_PHYS_OPTIONS.forEach(opt => {
+          const label = document.createElement("label");
+          label.className = "option";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `bsps-f${idx}`;
+          input.value = opt.score;
+          input.setAttribute("data-label", opt.label);
+          const span = document.createElement("span");
+          span.textContent = opt.label;
+          label.appendChild(input);
+          label.appendChild(span);
+          options.appendChild(label);
+        });
+        wrapper.appendChild(options);
+        container.appendChild(wrapper);
+      });
+    }
+
+    renderBspsPart1("bsps-part1");
+    renderBspsPart2("bsps-part2");
 
     function handleSubmit(formId, items, defaultOptions, resultId, errorId, testName, interpretFn, prefix) {
       const formEl = document.getElementById(formId);
@@ -1004,6 +1214,103 @@
     }
 
     handleEllisSubmit();
+
+    function handleBspsSubmit() {
+      const formEl = document.getElementById("form-bsps");
+      const resultEl = document.getElementById("bsps-result");
+      const errorEl = document.getElementById("bsps-error");
+
+      formEl.addEventListener("submit", (event) => {
+        event.preventDefault();
+        errorEl.style.display = "none";
+        resultEl.style.display = "none";
+
+        const fearResponses = [];
+        const avoidResponses = [];
+        const physResponses = [];
+
+        let totalM = 0;
+        let totalE = 0;
+        let totalF = 0;
+
+        for (let i = 0; i < BSPS_PART1_ITEMS.length; i++) {
+          const fear = document.querySelector(`input[name=\"bsps-m${i}\"]:checked`);
+          const avoid = document.querySelector(`input[name=\"bsps-e${i}\"]:checked`);
+          if (!fear || !avoid) {
+            errorEl.textContent = "Faltan respuestas en la Parte I. Por favor complete todos los ítems antes de finalizar.";
+            errorEl.style.display = "block";
+            return;
+          }
+          const fearScore = Number(fear.value);
+          const avoidScore = Number(avoid.value);
+          totalM += fearScore;
+          totalE += avoidScore;
+          fearResponses.push({ item: BSPS_PART1_ITEMS[i], response: fear.getAttribute("data-label"), score: fearScore });
+          avoidResponses.push({ item: BSPS_PART1_ITEMS[i], response: avoid.getAttribute("data-label"), score: avoidScore });
+        }
+
+        for (let i = 0; i < BSPS_PART2_ITEMS.length; i++) {
+          const phys = document.querySelector(`input[name=\"bsps-f${i}\"]:checked`);
+          if (!phys) {
+            errorEl.textContent = "Faltan respuestas en la Parte II. Por favor complete todos los ítems antes de finalizar.";
+            errorEl.style.display = "block";
+            return;
+          }
+          const physScore = Number(phys.value);
+          totalF += physScore;
+          physResponses.push({ item: BSPS_PART2_ITEMS[i], response: phys.getAttribute("data-label"), score: physScore });
+        }
+
+        const total = totalM + totalE + totalF;
+        resultEl.textContent = [
+          `Parte I - Miedo (M): ${totalM}`,
+          `Parte I - Evitación (E): ${totalE}`,
+          `Parte II - Fisiológica (F): ${totalF}`,
+          `Total (M + E + F): ${total}`,
+          "Nota: Esta escala reporta puntajes; el documento no especifica puntos de corte."
+        ].join("\n");
+        resultEl.style.display = "block";
+
+        const nombre = document.getElementById("bsps-nombre").value.trim();
+        const fecha = document.getElementById("bsps-fecha").value;
+
+        const rows = [];
+        rows.push(["Prueba", "Escala Breve de Fobia Social (BSPS)"]);
+        rows.push(["Fecha", fecha || ""]);
+        rows.push(["Consultante", nombre || ""]);
+        rows.push(["Total M (Miedo)", totalM]);
+        rows.push(["Total E (Evitación)", totalE]);
+        rows.push(["Total F (Fisiológica)", totalF]);
+        rows.push(["Total (M+E+F)", total]);
+        rows.push(["Nota", "Esta escala reporta puntajes; el documento no especifica puntos de corte."]);
+        rows.push([]);
+        rows.push(["Parte I - Miedo", "", ""]);
+        rows.push(["Ítem", "Respuesta", "Puntaje"]);
+        fearResponses.forEach((r) => rows.push([r.item, r.response, r.score]));
+        rows.push([]);
+        rows.push(["Parte I - Evitación", "", ""]);
+        rows.push(["Ítem", "Respuesta", "Puntaje"]);
+        avoidResponses.forEach((r) => rows.push([r.item, r.response, r.score]));
+        rows.push([]);
+        rows.push(["Parte II - Fisiológica", "", ""]);
+        rows.push(["Ítem", "Respuesta", "Puntaje"]);
+        physResponses.forEach((r) => rows.push([r.item, r.response, r.score]));
+
+        const xlsx = buildXlsx(rows);
+        const blob = new Blob([xlsx], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const safeName = (nombre || "consultante").replace(/[^a-z0-9_-]+/gi, "_").toLowerCase();
+        a.href = url;
+        a.download = `BSPS_${safeName}_${fecha || ""}.xlsx`.replace(/_+$/, "");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    handleBspsSubmit();
 
     function buildXlsx(rows) {
       const shared = [];
