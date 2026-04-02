@@ -22,7 +22,9 @@
       margin: 0;
       font-family: "Georgia", "Times New Roman", serif;
       color: var(--ink);
-      background: radial-gradient(1200px 600px at 20% 0%, #efe9df 0%, var(--bg) 55%, #f3f1ec 100%);
+      background:
+        radial-gradient(1200px 600px at 15% 0%, #efe9df 0%, var(--bg) 55%, #f3f1ec 100%),
+        linear-gradient(140deg, rgba(15, 118, 110, 0.08), rgba(19, 78, 74, 0.02));
     }
 
     header {
@@ -59,27 +61,87 @@
     }
 
     .menu {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .menu::before {
+      content: "";
+      position: absolute;
+      inset: -60px -80px -40px 40%;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><g fill='none' stroke='%230f766e' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'><path d='M430 120c-90-70-210-30-250 70-40 100 10 210 90 250 30 15 40 40 40 70 0 30 25 50 60 50h80c20 0 40-15 40-40 0-40-10-60-30-80 30-10 60-30 80-60 60-90 40-220-70-260z'/><path d='M300 210c30-20 70-20 100 5 30 25 20 70-10 85'/><path d='M260 290c35-15 75-5 95 20'/><path d='M330 340c20-10 50-5 65 15'/></g></svg>");
+      background-repeat: no-repeat;
+      background-position: right bottom;
+      background-size: 520px;
+      opacity: 0.16;
+      pointer-events: none;
+    }
+
+    .menu-header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .menu-header h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.3px;
+    }
+
+    .menu-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .menu-grid {
+      position: relative;
+      z-index: 1;
       display: grid;
       gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 
     .menu button {
-      border: 1px solid var(--border);
-      background: #fff;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      background: rgba(255, 255, 255, 0.92);
       color: var(--ink);
       padding: 16px 18px;
-      border-radius: 14px;
+      border-radius: 16px;
       font-weight: 600;
       cursor: pointer;
       text-align: left;
       font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    .menu-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .menu-sub {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      line-height: 1.35;
     }
 
     .menu button:hover {
-      border-color: #c7cbd1;
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      border-color: rgba(15, 118, 110, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 26px rgba(15, 23, 42, 0.12);
     }
 
     .meta {
@@ -224,9 +286,24 @@
 
   <main>
     <section id="menu" class="card menu">
-      <button type="button" data-target="bai">Inventario de Ansiedad de Beck (BAI)</button>
-      <button type="button" data-target="bdi">Inventario de Depresión de Beck (BDI-II)</button>
-      <button type="button" data-target="ellis">Test de Creencias Irracionales de Ellis</button>
+      <div class="menu-header">
+        <h2>Seleccione una prueba</h2>
+        <p>Elija la prueba que desea aplicar. Cada resultado se descarga automáticamente en formato XLSX.</p>
+      </div>
+      <div class="menu-grid">
+        <button type="button" data-target="bai">
+          <span class="menu-title">Inventario de Ansiedad de Beck (BAI)</span>
+          <span class="menu-sub">Ansiedad en la última semana, 21 ítems.</span>
+        </button>
+        <button type="button" data-target="bdi">
+          <span class="menu-title">Inventario de Depresión de Beck (BDI-II)</span>
+          <span class="menu-sub">Depresión en las últimas dos semanas, 21 grupos.</span>
+        </button>
+        <button type="button" data-target="ellis">
+          <span class="menu-title">Test de Creencias Irracionales de Ellis</span>
+          <span class="menu-sub">Creencias auto-limitadoras, 100 ítems.</span>
+        </button>
+      </div>
     </section>
 
     <section id="bai" class="card hidden">
