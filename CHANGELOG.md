@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-04-01
+1. Added the Ellis Irrational Beliefs Test with agree/disagree responses, per-belief scoring, and XLSX export (including belief-level interpretation).
+2. Extended the main menu and navigation to include the Ellis test.
+
 ## 2026-03-31
 1. Created `bai_form.html` with the Beck Anxiety Inventory (BAI), automatic scoring, interpretation, and XLSX download with no external dependencies.
 2. Extracted and incorporated BAI items and response options from the provided PDF.

@@ -192,6 +192,7 @@
       color: #065f46;
       font-family: "Arial", sans-serif;
       display: none;
+      white-space: pre-line;
     }
 
     .error {
@@ -225,6 +226,7 @@
     <section id="menu" class="card menu">
       <button type="button" data-target="bai">Inventario de Ansiedad de Beck (BAI)</button>
       <button type="button" data-target="bdi">Inventario de Depresión de Beck (BDI-II)</button>
+      <button type="button" data-target="ellis">Test de Creencias Irracionales de Ellis</button>
     </section>
 
     <section id="bai" class="card hidden">
@@ -272,6 +274,30 @@
         </div>
         <div id="bdi-result" class="result"></div>
         <div id="bdi-error" class="error"></div>
+      </form>
+    </section>
+
+    <section id="ellis" class="card hidden">
+      <h2>Test de Creencias Irracionales de Ellis</h2>
+      <p>Responda con rapidez si está de acuerdo o no con cada enunciado. Conteste lo que realmente piensa, no lo que cree que debería pensar.</p>
+      <form id="form-ellis">
+        <div class="meta">
+          <div class="field">
+            <label for="ellis-nombre">Nombre del consultante (opcional)</label>
+            <input id="ellis-nombre" name="nombre" type="text" placeholder="Nombre y apellidos" />
+          </div>
+          <div class="field">
+            <label for="ellis-fecha">Fecha</label>
+            <input id="ellis-fecha" name="fecha" type="date" />
+          </div>
+        </div>
+        <div id="ellis-items"></div>
+        <div class="actions">
+          <button type="submit" class="primary">Finalizar y descargar XLSX</button>
+          <button type="button" class="secondary" data-back>Volver al menú</button>
+        </div>
+        <div id="ellis-result" class="result"></div>
+        <div id="ellis-error" class="error"></div>
       </form>
     </section>
 
@@ -510,10 +536,132 @@
       }
     ];
 
+    const ELLIS_OPTIONS = [
+      { label: "No de acuerdo", score: 0 },
+      { label: "De acuerdo", score: 1 }
+    ];
+
+    const ELLIS_ITEMS = [
+      { num: 1, text: "Para mí es importante recibir la aprobación de los demás", marker: "*" },
+      { num: 2, text: "Odio equivocarme en algo", marker: "*" },
+      { num: 3, text: "La gente que se equivoca, logra lo que se merece", marker: "*" },
+      { num: 4, text: "Generalmente, acepto los acontecimientos con filosofía", marker: "**" },
+      { num: 5, text: "Si una persona quiere, puede ser feliz en casi cualquier circunstancia", marker: "**" },
+      { num: 6, text: "Temo a las cosas que, a menudo, me resultan objeto de preocupación", marker: "*" },
+      { num: 7, text: "Normalmente, aplazo las decisiones importantes", marker: "*" },
+      { num: 8, text: "Todo el mundo necesita de alguien a quien recurrir en busca de ayuda y consejo", marker: "*" },
+      { num: 9, text: "\"Una cebra no puede cambiar sus rayas\"", marker: "*" },
+      { num: 10, text: "Prefiero, sobre todas las cosas, pasar el tiempo libre de una forma tranquila", marker: "*" },
+      { num: 11, text: "Me gusta que los demás me respeten, pero yo no tengo por qué manifestar respeto a nadie", marker: "*" },
+      { num: 12, text: "Evito las cosas que no puedo hacer bien", marker: "*" },
+      { num: 13, text: "Hay demasiadas personas malas que escapan del castigo", marker: "*" },
+      { num: 14, text: "Las frustraciones no me distorsionan", marker: "**" },
+      { num: 15, text: "A la gente no le trastornan los acontecimientos, sino la imagen que tiene de ellos", marker: "**" },
+      { num: 16, text: "Me producen poca ansiedad los peligros inesperados o los acontecimientos futuros", marker: "**" },
+      { num: 17, text: "Trato de afrontar los trabajos fastidiosos y hacerlos cuanto antes", marker: "**" },
+      { num: 18, text: "En las decisiones importantes, consulto con una autoridad al respecto", marker: "*" },
+      { num: 19, text: "Es casi imposible superar la influencia del pasado", marker: "*" },
+      { num: 20, text: "Me gusta disponer de muchos recursos", marker: "**" },
+      { num: 21, text: "Quiero gustar a todo el mundo", marker: "*" },
+      { num: 22, text: "No me gusta competir en aquellas actividades en las que los demás son mejores que yo", marker: "**" },
+      { num: 23, text: "Aquellos que se equivocan, merecen cargar con las culpas", marker: "*" },
+      { num: 24, text: "Las cosas deberían ser distintas a como son", marker: "*" },
+      { num: 25, text: "Yo provoco mi propio mal humor", marker: "**" },
+      { num: 26, text: "A menudo, no puedo quitarme algún asunto de la cabeza", marker: "*" },
+      { num: 27, text: "Evito enfrentarme a los problemas", marker: "*" },
+      { num: 28, text: "Todo el mundo necesita tener fuera de sí mismo una fuente de energía", marker: "*" },
+      { num: 29, text: "Sólo porque una vez algo afectó tu vida de forma importante, no quiere decir que tenga que ser igual en un futuro", marker: "**" },
+      { num: 30, text: "Me siento más satisfecho cuando tengo muchas cosas que hacer", marker: "**" },
+      { num: 31, text: "Puedo gustarme a mí mismo, aun cuando no guste a los demás", marker: "**" },
+      { num: 32, text: "Me gustaría triunfar en algo, pero no pienso que deba hacerlo", marker: "**" },
+      { num: 33, text: "La inmoralidad debería castigarse severamente", marker: "*" },
+      { num: 34, text: "A menudo me siento trastornado/a por situaciones que no me gustan", marker: "*" },
+      { num: 35, text: "Las personas desgraciadas, normalmente se deben este estado a sí mismas", marker: "**" },
+      { num: 36, text: "No me preocupo por no poder evitar que algo ocurra", marker: "**" },
+      { num: 37, text: "Normalmente, tomo las decisiones tan pronto como puedo", marker: "**" },
+      { num: 38, text: "Hay determinadas personas de las que dependo mucho", marker: "*" },
+      { num: 39, text: "La gente sobrevalora la influencia del pasado", marker: "**" },
+      { num: 40, text: "Lo que más me divierte es realizar algún proyecto creativo", marker: "**" },
+      { num: 41, text: "Si no gusto a los demás es su problema, no el mío", marker: "**" },
+      { num: 42, text: "Para mí es muy importante lograr el éxito en todo lo que hago", marker: "*" },
+      { num: 43, text: "Pocas veces culpo a la gente de sus errores", marker: "**" },
+      { num: 44, text: "Normalmente, acepto las cosas como son, aunque no me gusten", marker: "**" },
+      { num: 45, text: "Nadie está mucho tiempo de mal humor o enfadado, a menos que quiera estarlo", marker: "**" },
+      { num: 46, text: "No puedo soportar correr riesgos", marker: "*" },
+      { num: 47, text: "La vida es demasiado corta para pasarla haciendo cosas que a uno no le gustan", marker: "*" },
+      { num: 48, text: "Me gusta valerme por mi mismo/a", marker: "**" },
+      { num: 49, text: "Si hubiera vivido experiencias distintas, podría ser más como me gustaría ser", marker: "*" },
+      { num: 50, text: "Me gustaría jubilarme y apartarme totalmente del trabajo", marker: "*" },
+      { num: 51, text: "Pienso que es duro ir en contra de lo que piensan los demás", marker: "*" },
+      { num: 52, text: "Disfruto de las actividades por sí mismas, al margen de lo bueno/a malo/a que sea en ellas", marker: "**" },
+      { num: 53, text: "El miedo al castigo es lo que hace a la gente ser buena", marker: "*" },
+      { num: 54, text: "Si las cosas me desagradan opto por ignorarlas", marker: "**" },
+      { num: 55, text: "Cuanto más problemas tiene una persona, menos feliz es", marker: "*" },
+      { num: 56, text: "Raramente me siento ansioso/a al pensar en el futuro", marker: "**" },
+      { num: 57, text: "Raramente aplazo las cosas", marker: "**" },
+      { num: 58, text: "Yo soy el/la único/a que realmente puede entender y solucionar mis problemas", marker: "**" },
+      { num: 59, text: "Normalmente, no pienso que las experiencias pasadas me afecten en la actualidad", marker: "**" },
+      { num: 60, text: "Tener demasiado tiempo libre, resulta aburrido", marker: "**" },
+      { num: 61, text: "Aunque me gusta recibir la aprobación de los demás, no tengo necesidad real de ello", marker: "**" },
+      { num: 62, text: "Me fastidia que los demás sean mejores que yo en algo", marker: "*" },
+      { num: 63, text: "Todo el mundo es, esencialmente, bueno", marker: "*" },
+      { num: 64, text: "Hago todo lo que puedo por conseguir lo que quiero y una vez conseguido, deja de preocuparme", marker: "**" },
+      { num: 65, text: "Nada es intrínsicamente perturbador; si lo es se debe al modo en que lo interpretamos", marker: "**" },
+      { num: 66, text: "Me preocupan mucho determinadas cosas del futuro", marker: "*" },
+      { num: 67, text: "Me resulta difícil hacer las tareas desagradables", marker: "*" },
+      { num: 68, text: "Me desagrada que los demás tomen decisiones por mí", marker: "**" },
+      { num: 69, text: "Somos esclavos de nuestro pasado", marker: "*" },
+      { num: 70, text: "A veces desearía poder irme a una isla tropical y tenderme en la playa, sin hacer nada más", marker: "*" },
+      { num: 71, text: "A menudo me preocupa que la gente me apruebe y me acepte", marker: "*" },
+      { num: 72, text: "Me trastorna cometer errores", marker: "*" },
+      { num: 73, text: "No es equitativo que \"llueva igual sobre el justo que sobre el injusto\"", marker: "*" },
+      { num: 74, text: "Yo disfruto honradamente de la vida", marker: "**" },
+      { num: 75, text: "Debería haber más personas que afrontaran lo desagradable de la vida", marker: "*" },
+      { num: 76, text: "Algunas veces, me resulta imposible apartar de mi mente el miedo a algo", marker: "*" },
+      { num: 77, text: "Una vida fácil, muy pocas veces resulta compensadora", marker: "**" },
+      { num: 78, text: "Pienso que es fácil buscar ayuda", marker: "*" },
+      { num: 79, text: "Cada vez que algo afecta tu vida de forma importante, seguirá haciéndolo siempre", marker: "*" },
+      { num: 80, text: "Me encanta estar tumbado", marker: "*" },
+      { num: 81, text: "Tengo considerable preocupación por lo que la gente piensa de mí", marker: "*" },
+      { num: 82, text: "Muchas veces me enfado muchísimo por cosas sin importancia", marker: "*" },
+      { num: 83, text: "Generalmente doy una segunda oportunidad a quien se equivoca", marker: "**" },
+      { num: 84, text: "La gente es más feliz cuando tiene metas y problemas que resolver", marker: "*" },
+      { num: 85, text: "Nunca hay razón para permanecer afligido mucho tiempo", marker: "**" },
+      { num: 86, text: "Raramente pienso en cosas como la muerte", marker: "**" },
+      { num: 87, text: "No me gustan las responsabilidades", marker: "**" },
+      { num: 88, text: "No me gusta depender de los demás", marker: "**" },
+      { num: 89, text: "La gente nunca cambia, básicamente", marker: "*" },
+      { num: 90, text: "La mayoría de las personas trabaja demasiado y no descansa lo suficiente", marker: "*" },
+      { num: 91, text: "Ser criticado es algo fastidioso pero no perturbador", marker: "**" },
+      { num: 92, text: "No me asusta hacer aquellas cosas que no hago del todo bien", marker: "**" },
+      { num: 93, text: "Nadie es malo a pesar de que sus actos lo sean", marker: "**" },
+      { num: 94, text: "Raramente me importunan los errores de los demás", marker: "**" },
+      { num: 95, text: "El hombre construye su propio malestar interno", marker: "**" },
+      { num: 96, text: "Muchas veces me sorprendo planeando lo que haría si me encontrara en determinadas situaciones de peligro", marker: "*" },
+      { num: 97, text: "Si tengo que hacer algo, lo hago a pesar de que no sea agradable", marker: "**" },
+      { num: 98, text: "He aprendido a no estar pendiente de nada que no esté relacionado con mi bienestar", marker: "**" },
+      { num: 99, text: "No miro atrás con resentimiento", marker: "**" },
+      { num: 100, text: "No me siento realmente contento hasta que no estoy relajado y sin hacer nada", marker: "*" }
+    ];
+
+    const ELLIS_BELIEFS = [
+      { id: 1, statement: "Para un adulto es absolutamente necesario tener el cariño y la aprobación de sus semejantes, familia, amigos" },
+      { id: 2, statement: "Debe ser indefectiblemente competente y casi perfecto en todo lo que emprende" },
+      { id: 3, statement: "Ciertas personas son malas, viles y perversas y deberían ser castigadas" },
+      { id: 4, statement: "Es horrible cuando las cosas no van como a uno le gustaría que fueran" },
+      { id: 5, statement: "Los acontecimientos externos son la causa de la mayoría de las desgracias de la humanidad; la gente simplemente reacciona según cómo los acontecimientos inciden en sus emociones" },
+      { id: 6, statement: "Se debe sentir miedo o ansiedad ante cualquier cosa desconocida, incierta o potencialmente peligrosa" },
+      { id: 7, statement: "Es más fácil evitar los problemas y responsabilidades de la vida que hacerles frente" },
+      { id: 8, statement: "Se necesita contar con algo más grande y más fuerte que uno mismo" },
+      { id: 9, statement: "El pasado tiene gran influencia en la determinación del presente" },
+      { id: 10, statement: "La felicidad aumenta con la inactividad, la pasividad y el ocio indefinido" }
+    ];
+
     const menuSection = document.getElementById("menu");
     const sections = {
       bai: document.getElementById("bai"),
-      bdi: document.getElementById("bdi")
+      bdi: document.getElementById("bdi"),
+      ellis: document.getElementById("ellis")
     };
 
     document.querySelectorAll("#menu button[data-target]").forEach(btn => {
@@ -534,6 +682,7 @@
         menuSection.classList.remove("hidden");
         sections.bai.classList.add("hidden");
         sections.bdi.classList.add("hidden");
+        sections.ellis.classList.add("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
@@ -550,6 +699,7 @@
 
     setDefaultDate("bai-fecha");
     setDefaultDate("bdi-fecha");
+    setDefaultDate("ellis-fecha");
 
     function renderItems(containerId, items, defaultOptions, namePrefix) {
       const container = document.getElementById(containerId);
@@ -559,7 +709,7 @@
 
         const title = document.createElement("div");
         title.className = "item-title";
-        title.textContent = `${idx + 1}. ${item.title || item}`;
+        title.textContent = `${idx + 1}. ${item.title || item.text || item}`;
         wrapper.appendChild(title);
 
         const options = document.createElement("div");
@@ -591,6 +741,7 @@
 
     renderItems("bai-items", BAI_ITEMS, BAI_OPTIONS, "bai");
     renderItems("bdi-items", BDI_ITEMS, null, "bdi");
+    renderItems("ellis-items", ELLIS_ITEMS, ELLIS_OPTIONS, "ellis");
 
     function handleSubmit(formId, items, defaultOptions, resultId, errorId, testName, interpretFn, prefix) {
       const formEl = document.getElementById(formId);
@@ -614,7 +765,7 @@
           }
           const score = Number(chosen.value);
           const label = chosen.getAttribute("data-label");
-          const itemTitle = items[i].title || items[i];
+          const itemTitle = items[i].title || items[i].text || items[i];
           responses.push({ item: itemTitle, response: label, score });
           total += score;
         }
@@ -682,6 +833,100 @@
       },
       "bdi"
     );
+
+    function ellisBeliefIndex(num) {
+      return num % 10 === 0 ? 10 : num % 10;
+    }
+
+    function ellisLevel(score) {
+      if (score >= 7) return "Limitante en muchas áreas";
+      if (score >= 5) return "Limitante en algunas circunstancias";
+      return "Sin limitación significativa";
+    }
+
+    function handleEllisSubmit() {
+      const formEl = document.getElementById("form-ellis");
+      const resultEl = document.getElementById("ellis-result");
+      const errorEl = document.getElementById("ellis-error");
+
+      formEl.addEventListener("submit", (event) => {
+        event.preventDefault();
+        errorEl.style.display = "none";
+        resultEl.style.display = "none";
+
+        const responses = [];
+        const beliefScores = Array(10).fill(0);
+        let total = 0;
+
+        for (let i = 0; i < ELLIS_ITEMS.length; i++) {
+          const item = ELLIS_ITEMS[i];
+          const chosen = document.querySelector(`input[name=\"ellis-q${i}\"]:checked`);
+          if (!chosen) {
+            errorEl.textContent = "Faltan respuestas. Por favor complete todos los ítems antes de finalizar.";
+            errorEl.style.display = "block";
+            return;
+          }
+          const isAgree = Number(chosen.value) === 1;
+          const score = item.marker === "*" ? (isAgree ? 1 : 0) : (isAgree ? 0 : 1);
+          const label = chosen.getAttribute("data-label");
+          responses.push({
+            item: `${item.num}. ${item.text}`,
+            response: label,
+            marker: item.marker,
+            score
+          });
+          total += score;
+          const beliefIdx = ellisBeliefIndex(item.num) - 1;
+          beliefScores[beliefIdx] += score;
+        }
+
+        const summaryLines = ELLIS_BELIEFS.map((belief, idx) => {
+          const score = beliefScores[idx];
+          return `Creencia ${belief.id}: ${score} (${ellisLevel(score)})`;
+        });
+        resultEl.textContent = [
+          `Puntaje total: ${total}.`,
+          "Interpretación por creencia:",
+          ...summaryLines,
+          "Nota: 5-6 puntos = limitante en algunas circunstancias; 7+ puntos = limitante en muchas áreas."
+        ].join("\n");
+        resultEl.style.display = "block";
+
+        const nombre = document.getElementById("ellis-nombre").value.trim();
+        const fecha = document.getElementById("ellis-fecha").value;
+
+        const rows = [];
+        rows.push(["Prueba", "Test de Creencias Irracionales de Ellis"]);
+        rows.push(["Fecha", fecha || ""]);
+        rows.push(["Consultante", nombre || ""]);
+        rows.push(["Puntaje total", total]);
+        rows.push(["Nota", "5-6 puntos = limitante en algunas circunstancias; 7+ puntos = limitante en muchas áreas."]);
+        rows.push([]);
+        rows.push(["Creencia", "Enunciado", "Puntaje", "Interpretación"]);
+        ELLIS_BELIEFS.forEach((belief, idx) => {
+          rows.push([`Creencia ${belief.id}`, belief.statement, beliefScores[idx], ellisLevel(beliefScores[idx])]);
+        });
+        rows.push([]);
+        rows.push(["Ítem", "Respuesta", "Marcador", "Puntaje"]);
+        responses.forEach((r) => {
+          rows.push([r.item, r.response, r.marker, r.score]);
+        });
+
+        const xlsx = buildXlsx(rows);
+        const blob = new Blob([xlsx], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const safeName = (nombre || "consultante").replace(/[^a-z0-9_-]+/gi, "_").toLowerCase();
+        a.href = url;
+        a.download = `ELLIS_${safeName}_${fecha || ""}.xlsx`.replace(/_+$/, "");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    handleEllisSubmit();
 
     function buildXlsx(rows) {
       const shared = [];
